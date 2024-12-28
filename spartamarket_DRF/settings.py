@@ -49,6 +49,35 @@ INSTALLED_APPS = [
     'products',
 ]
 
+# DRF에서 JWT 인증 관련 클래스 추가
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+}
+
+from datetime import timedelta
+...
+
+# JWT 관련 설정
+SIMPLE_JWT = {
+    # 평소에 API 통신할 때는 Access Token을 사용. 여기서는 테스트를 위해 30분 동안 유효하도록 해 둠.
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+
+    # Refresh Token은 Access Token이 만료되어 이를 갱신할 때만 사용. 여기서는 하루 동안 유효하도록 해 둠.
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    
+    # 즉, 통신과정에서 탈취당할 위험이 큰 Access Token의 만료 기간을 짧게 두고 Refresh Token으로 주기적으로 재발급함으로써 피해을 최소화한 것이다.
+    
+    # ROTATE_REFRESH_TOKENS:
+    # True로 설정할 경우 simplejwt_token 앱에서 제공하는 TokenRefreshView에 리프레시 토큰을 제출할 때 
+    # 액세스 토큰과 리프레시 토큰 둘 다 재발급을 받는다. False 일경우 액세스 토큰만 재발급 받는다.
+    "ROTATE_REFRESH_TOKENS": True,
+
+    # BLACKLIST_AFTER_ROTATION: True로 설정할 경우, ROTATE_REFRESH_TOKENS 이 True 일 때, TokenRefreshView에 제출된 리프레시 토큰은 블랙리스트에 추가된다.
+    "BLACKLIST_AFTER_ROTATION": True,
+}
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -122,11 +151,15 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
+STATIC_URL = "static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"  # 배포 시에 작동함. 개발 단계에서는 의미 없음.
 
-STATIC_URL = 'static/'
+# 미디어 처리 관련
+MEDIA_URL = "/media/"
+BASE_ROOT = BASE_DIR / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
